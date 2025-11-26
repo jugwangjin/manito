@@ -173,6 +173,50 @@
             color: white;
         }
         
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-download {
+            background: #28a745;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-download:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-download:active {
+            transform: translateY(0);
+        }
+        
+        .btn-download-all {
+            background: #17a2b8;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .btn-download-all:hover {
+            background: #138496;
+            color: white;
+        }
+        
         @media (max-width: 768px) {
             .card-header h1 {
                 font-size: 2rem;
@@ -216,6 +260,9 @@
                 <div id="resultsSection" class="results-section" style="display: none;">
                     <hr>
                     <h4 class="mb-4"><i class="fas fa-list"></i> 마니또 결과</h4>
+                    <button class="btn btn-download-all w-100" onclick="downloadAll()">
+                        <i class="fas fa-download"></i> 전체 다운로드 (모든 참가자)
+                    </button>
                     <div id="resultsContainer"></div>
                     <button class="btn btn-reset w-100" onclick="resetApp()">
                         <i class="fas fa-redo"></i> 다시 시작하기
@@ -229,6 +276,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // 전역 변수로 assignments 저장 (다운로드 기능을 위해)
+        let currentAssignments = {};
+        
         function drawManitto() {
             const namesInput = document.getElementById('namesInput').value.trim();
             const names = namesInput.split('\n')
@@ -255,6 +305,9 @@
                 const manitto = shuffled[(i + 1) % shuffled.length];
                 assignments[person] = manitto;
             }
+            
+            // 전역 변수에 저장
+            currentAssignments = assignments;
             
             // 결과 표시
             displayResults(assignments);
@@ -290,6 +343,11 @@
                     </div>
                     <div class="result-manitto hidden" onclick="toggleManitto(this, event)">
                         ${assignments[name]}
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn-download" onclick="downloadManitto('${name}', '${assignments[name]}', event)">
+                            <i class="fas fa-download"></i> 다운로드
+                        </button>
                     </div>
                 `;
                 
@@ -329,7 +387,64 @@
                 document.getElementById('namesInput').value = '';
                 document.getElementById('resultsSection').style.display = 'none';
                 document.getElementById('alertContainer').innerHTML = '';
+                currentAssignments = {};
             }
+        }
+        
+        function downloadManitto(name, manitto, event) {
+            event.stopPropagation();
+            
+            // 파일 내용 생성
+            const content = `${name}님의 마니또는 ${manitto}님입니다.`;
+            
+            // Blob 생성
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            // 다운로드 링크 생성
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // 정리
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function downloadAll() {
+            if (Object.keys(currentAssignments).length === 0) {
+                showAlert('다운로드할 결과가 없습니다.', 'warning');
+                return;
+            }
+            
+            // 모든 참가자의 파일을 하나씩 다운로드
+            const sortedNames = Object.keys(currentAssignments).sort();
+            let delay = 0;
+            
+            sortedNames.forEach((name) => {
+                setTimeout(() => {
+                    const manitto = currentAssignments[name];
+                    const content = `${name}님의 마니또는 ${manitto}님입니다.`;
+                    
+                    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${name}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, delay);
+                
+                delay += 200; // 각 파일 다운로드 사이에 200ms 지연
+            });
+            
+            showAlert(`총 ${sortedNames.length}개의 파일이 다운로드됩니다.`, 'success');
         }
     </script>
 </body>
