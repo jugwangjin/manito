@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마니또 뽑기 🎁</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 800px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .card-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .card-body {
+            padding: 30px;
+            background: white;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .results-section {
+            margin-top: 30px;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .result-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-manitto {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .result-manitto.hidden {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: transparent;
+            user-select: none;
+            position: relative;
+        }
+        
+        .result-manitto.hidden::after {
+            content: '👆 클릭하여 확인';
+            position: absolute;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .icon {
+            font-size: 1.2rem;
+        }
+        
+        .btn-reset {
+            background: #6c757d;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        .btn-reset:hover {
+            background: #5a6268;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .card-header h1 {
+                font-size: 2rem;
+            }
+            
+            .card-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card animate__animated animate__fadeInDown">
+            <div class="card-header">
+                <h1><i class="fas fa-gift icon"></i> 마니또 뽑기</h1>
+                <p class="mb-0 mt-2">이름을 입력하고 마니또를 뽑아보세요!</p>
+            </div>
+            <div class="card-body">
+                <div class="input-section">
+                    <label for="namesInput" class="form-label">
+                        <i class="fas fa-users"></i> 참가자 이름 입력 (한 줄에 하나씩)
+                    </label>
+                    <textarea 
+                        class="form-control" 
+                        id="namesInput" 
+                        rows="8" 
+                        placeholder="예시:&#10;김철수&#10;이영희&#10;박민수&#10;정수진"
+                    ></textarea>
+                    <small class="text-muted">각 이름을 줄바꿈으로 구분하여 입력하세요</small>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-lg" onclick="drawManitto()">
+                        <i class="fas fa-magic"></i> 마니또 뽑기
+                    </button>
+                </div>
+                
+                <div id="alertContainer"></div>
+                
+                <div id="resultsSection" class="results-section" style="display: none;">
+                    <hr>
+                    <h4 class="mb-4"><i class="fas fa-list"></i> 마니또 결과</h4>
+                    <div id="resultsContainer"></div>
+                    <button class="btn btn-reset w-100" onclick="resetApp()">
+                        <i class="fas fa-redo"></i> 다시 시작하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function drawManitto() {
+            const namesInput = document.getElementById('namesInput').value.trim();
+            const names = namesInput.split('\n')
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
+            
+            // 유효성 검사
+            if (names.length < 2) {
+                showAlert('최소 2명 이상의 이름을 입력해주세요.', 'warning');
+                return;
+            }
+            
+            if (names.length !== new Set(names).size) {
+                showAlert('중복된 이름이 있습니다. 각 이름은 고유해야 합니다.', 'danger');
+                return;
+            }
+            
+            // 마니또 배정 (순환 방식으로 각 사람이 다른 사람의 마니또가 되도록)
+            const shuffled = shuffleArray([...names]);
+            const assignments = {};
+            
+            for (let i = 0; i < shuffled.length; i++) {
+                const person = shuffled[i];
+                const manitto = shuffled[(i + 1) % shuffled.length];
+                assignments[person] = manitto;
+            }
+            
+            // 결과 표시
+            displayResults(assignments);
+        }
+        
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function displayResults(assignments) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            resultsContainer.innerHTML = '';
+            
+            // 이름 순서대로 정렬하여 표시
+            const sortedNames = Object.keys(assignments).sort();
+            
+            sortedNames.forEach((name, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item animate__animated animate__fadeInUp';
+                resultItem.style.animationDelay = `${index * 0.1}s`;
+                
+                resultItem.innerHTML = `
+                    <div class="result-name">
+                        <i class="fas fa-user"></i>
+                        <span>${name}</span>
+                    </div>
+                    <div class="result-manitto hidden" onclick="toggleManitto(this, event)">
+                        ${assignments[name]}
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(resultItem);
+            });
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function toggleManitto(element, event) {
+            event.stopPropagation();
+            element.classList.toggle('hidden');
+        }
+        
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // 3초 후 자동으로 사라지게
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 3000);
+        }
+        
+        function resetApp() {
+            if (confirm('정말 다시 시작하시겠습니까? 현재 결과가 사라집니다.')) {
+                document.getElementById('namesInput').value = '';
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('alertContainer').innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>
+
