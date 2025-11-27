@@ -217,6 +217,25 @@
             color: white;
         }
         
+        .btn-answer-file {
+            background: #ffc107;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .btn-answer-file:hover {
+            background: #e0a800;
+            color: #333;
+        }
+        
+        .title-input-section {
+            margin-bottom: 20px;
+        }
+        
         @media (max-width: 768px) {
             .card-header h1 {
                 font-size: 2rem;
@@ -236,6 +255,19 @@
                 <p class="mb-0 mt-2">이름을 입력하고 마니또를 뽑아보세요!</p>
             </div>
             <div class="card-body">
+                <div class="title-input-section">
+                    <label for="titleInput" class="form-label">
+                        <i class="fas fa-heading"></i> 제목 (선택사항)
+                    </label>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="titleInput" 
+                        placeholder="예: 2025년 신년 마니또"
+                    >
+                    <small class="text-muted">정답 파일에 포함될 제목을 입력하세요</small>
+                </div>
+                
                 <div class="input-section">
                     <label for="namesInput" class="form-label">
                         <i class="fas fa-users"></i> 참가자 이름 입력 (한 줄에 하나씩)
@@ -260,6 +292,9 @@
                 <div id="resultsSection" class="results-section" style="display: none;">
                     <hr>
                     <h4 class="mb-4"><i class="fas fa-list"></i> 마니또 결과</h4>
+                    <button class="btn btn-answer-file w-100" onclick="downloadAnswerFile()">
+                        <i class="fas fa-file-alt"></i> 정답 파일 다운로드
+                    </button>
                     <button class="btn btn-download-all w-100" onclick="downloadAll()">
                         <i class="fas fa-download"></i> 전체 다운로드 (모든 참가자)
                     </button>
@@ -384,6 +419,7 @@
         
         function resetApp() {
             if (confirm('정말 다시 시작하시겠습니까? 현재 결과가 사라집니다.')) {
+                document.getElementById('titleInput').value = '';
                 document.getElementById('namesInput').value = '';
                 document.getElementById('resultsSection').style.display = 'none';
                 document.getElementById('alertContainer').innerHTML = '';
@@ -445,6 +481,88 @@
             });
             
             showAlert(`총 ${sortedNames.length}개의 파일이 다운로드됩니다.`, 'success');
+        }
+        
+        function downloadAnswerFile() {
+            if (Object.keys(currentAssignments).length === 0) {
+                showAlert('다운로드할 결과가 없습니다.', 'warning');
+                return;
+            }
+            
+            // 현재 날짜와 시간 가져오기
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const dateStr = `${year}-${month}-${day}`;
+            const timeStr = `${hours}:${minutes}`;
+            
+            // 제목 가져오기
+            const title = document.getElementById('titleInput').value.trim();
+            
+            // 참가자 이름들 가져오기 (정렬된 순서)
+            const sortedNames = Object.keys(currentAssignments).sort();
+            const namesStr = sortedNames.join('_');
+            
+            // 파일명 생성: 날짜_시간_이름1_이름2_..._이름N.txt
+            const fileName = `${dateStr}_${hours}-${minutes}_${namesStr}.txt`;
+            
+            // 파일 내용 생성
+            let content = '';
+            
+            // 헤더 부분
+            content += '='.repeat(50) + '\n';
+            content += '마니또 뽑기 정답 파일\n';
+            content += '='.repeat(50) + '\n\n';
+            
+            if (title) {
+                content += `제목: ${title}\n`;
+            }
+            content += `날짜: ${dateStr}\n`;
+            content += `시간: ${timeStr}\n`;
+            content += `참가자 수: ${sortedNames.length}명\n`;
+            content += `참가자: ${sortedNames.join(', ')}\n`;
+            content += '\n';
+            content += '='.repeat(50) + '\n';
+            content += '아래로 스크롤하여 정답을 확인하세요\n';
+            content += '='.repeat(50) + '\n\n';
+            
+            // 50줄 정도의 줄바꿈
+            for (let i = 0; i < 50; i++) {
+                content += '\n';
+            }
+            
+            // 정답 부분
+            content += '='.repeat(50) + '\n';
+            content += '정답\n';
+            content += '='.repeat(50) + '\n\n';
+            
+            sortedNames.forEach((name, index) => {
+                content += `${index + 1}. ${name} → ${currentAssignments[name]}\n`;
+            });
+            
+            content += '\n';
+            content += '='.repeat(50) + '\n';
+            content += '끝\n';
+            content += '='.repeat(50) + '\n';
+            
+            // Blob 생성 및 다운로드
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showAlert('정답 파일이 다운로드되었습니다.', 'success');
         }
     </script>
 </body>
